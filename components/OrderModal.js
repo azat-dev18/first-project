@@ -32,9 +32,9 @@ export default function OrderModal({ service, isOpen, onClose }) {
             await submitOrder(fd);
             setStatus('success');
             setFormData({ full_name: '', phone: '', email: '', address: '' });
-        } catch (error) {
-            setStatus('error');
-        }
+            } catch {
+        setStatus('error');
+    }
     };
 
     const serviceNames = {
