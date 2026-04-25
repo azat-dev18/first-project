@@ -1,4 +1,22 @@
+'use client';
+
+import { useState } from 'react';
+import OrderModal from '@/components/OrderModal';
+
 export default function Home() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
+  const handleOrderClick = (serviceId) => {
+    setSelectedService(serviceId);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedService(null);
+  };
+
   return (
     <>
       {/* Главный экран (Hero) */}
@@ -60,7 +78,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Услуги */}
+      {/* Услуги с кнопками заказа */}
       <section id="services" className="bg-gray-100 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Услуги</h2>
@@ -68,11 +86,19 @@ export default function Home() {
             {services.map((service, idx) => (
               <div
                 key={idx}
-                className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
+                className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition flex flex-col"
               >
                 <div className="text-3xl mb-4">{service.icon}</div>
                 <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                <p className="text-gray-600">{service.description}</p>
+                <p className="text-gray-600 flex-grow">{service.description}</p>
+                {service.hasOrderButton && (
+                  <button
+                    onClick={() => handleOrderClick(service.id)}
+                    className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition self-start"
+                  >
+                    Заказать услугу
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -145,56 +171,76 @@ export default function Home() {
               ></textarea>
             </div>
             <button
-  type="button"
-  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition"
->
-  Отправить заявку
-</button>
+              type="button"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition"
+            >
+              Отправить заявку
+            </button>
             <p className="text-xs text-gray-500 mt-3 text-center">
               (Форма не отправляет данные, это демо-версия)
             </p>
           </form>
         </div>
       </section>
+
+      {/* Модальное окно заказа услуги */}
+      <OrderModal
+        service={selectedService}
+        isOpen={modalOpen}
+        onClose={closeModal}
+      />
     </>
   );
 }
 
+// Данные услуг с id и флагом для кнопок
 const services = [
   {
+    id: 'esg-audit',
     icon: '🌍',
     title: 'ESG-аудит IT',
     description:
       'Оценка углеродного следа вашей IT-инфраструктуры и рекомендации по снижению.',
+    hasOrderButton: true,
   },
   {
+    id: 'energy',
     icon: '⚡',
     title: 'Энергоэффективная архитектура',
     description:
       'Проектирование облачных и on‑premise решений с минимальным энергопотреблением.',
+    hasOrderButton: true,
   },
   {
+    id: 'dashboards',
     icon: '📊',
     title: 'Green-дашборды',
     description:
       'Визуализация ключевых экологических метрик вашего цифрового бизнеса в реальном времени.',
+    hasOrderButton: true,
   },
   {
+    id: null,
     icon: '🔄',
     title: 'Карбоновый менеджмент',
     description:
       'Автоматизация учёта и отчётности по выбросам Scope 1, 2, 3.',
+    hasOrderButton: false,
   },
   {
+    id: null,
     icon: '💻',
     title: 'Разработка эко-софта',
     description:
       'Создание веб-приложений с низким потреблением ресурсов и оптимизацией трафика.',
+    hasOrderButton: false,
   },
   {
+    id: null,
     icon: '🎓',
     title: 'Обучение команд',
     description:
       'Тренинги и воркшопы по принципам Green Coding для ваших разработчиков.',
+    hasOrderButton: false,
   },
 ];
