@@ -185,10 +185,11 @@ export default function Home() {
 
       {/* Модальное окно заказа услуги */}
       <OrderModal
-        service={selectedService}
-        isOpen={modalOpen}
-        onClose={closeModal}
-      />
+    key={selectedService + (modalOpen ? 'open' : 'closed')}
+    service={selectedService}
+    isOpen={modalOpen}
+    onClose={closeModal}
+    />
     </>
   );
 }

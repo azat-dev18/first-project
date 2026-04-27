@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { submitOrder } from '@/actions/order';
 
 export default function OrderModal({ service, isOpen, onClose }) {
@@ -11,6 +11,24 @@ export default function OrderModal({ service, isOpen, onClose }) {
         address: '',
     });
     const [status, setStatus] = useState('idle'); // idle | loading | success | error
+
+    // При каждом открытии окна сбрасываем всё в исходное состояние
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({ full_name: '', phone: '', email: '', address: '' });
+            setStatus('idle');
+        }
+    }, [isOpen]);
+
+    // Автоматически закрываем через 2 секунды после успеха
+    useEffect(() => {
+        if (status === 'success') {
+            const timer = setTimeout(() => {
+                onClose();
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [status, onClose]);
 
     if (!isOpen) return null;
 
@@ -31,10 +49,9 @@ export default function OrderModal({ service, isOpen, onClose }) {
 
             await submitOrder(fd);
             setStatus('success');
-            setFormData({ full_name: '', phone: '', email: '', address: '' });
-            } catch {
-        setStatus('error');
-    }
+        } catch (error) {
+            setStatus('error');
+        }
     };
 
     const serviceNames = {
@@ -58,13 +75,7 @@ export default function OrderModal({ service, isOpen, onClose }) {
                 {status === 'success' ? (
                     <div className="text-green-700 bg-green-50 p-4 rounded-lg text-center">
                         <p className="font-semibold">Спасибо за заявку!</p>
-                        <p className="text-sm">Мы свяжемся с вами в ближайшее время.</p>
-                        <button
-                            onClick={onClose}
-                            className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                        >
-                            Закрыть
-                        </button>
+                        <p className="text-sm">Окно закроется автоматически…</p>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
