@@ -1,0 +1,29 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy via rsync
+        uses: easingthemes/ssh-deploy@v4
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+          EXCLUDE: ".git, node_modules, .next, out"
+          SCRIPT_AFTER: |
+            cd ${{ secrets.TARGET_DIR }}
+            npm ci --omit=dev
+            echo "DATABASE_URL=postgresql://greentech_user:secure_password_here@localhost:5432/greentech" > .env.local
+            pm2 restart greentech || pm2 start npm --name greentech -- start
