@@ -128,7 +128,7 @@ export default function Home() {
             <div className="bg-green-50 p-6 rounded-xl">
               <div className="text-2xl mb-2">📍</div>
               <h4 className="font-semibold">Офис</h4>
-              <p className="text-gray-700">Алмтаы, ул. Байтурсынова, д. 15</p>
+              <p className="text-gray-700">Алматы, ул. Байтурсынова, д. 15</p>
             </div>
           </div>
 
