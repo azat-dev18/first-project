@@ -123,12 +123,12 @@ export default function Home() {
             <div className="bg-green-50 p-6 rounded-xl">
               <div className="text-2xl mb-2">📞</div>
               <h4 className="font-semibold">Телефон</h4>
-              <p className="text-gray-700">+7 (999) 123-45-67</p>
+              <p className="text-gray-700">+7 (777) 123-45-67</p>
             </div>
             <div className="bg-green-50 p-6 rounded-xl">
               <div className="text-2xl mb-2">📍</div>
               <h4 className="font-semibold">Офис</h4>
-              <p className="text-gray-700">Москва, ул. Лесная, д. 15</p>
+              <p className="text-gray-700">Казахстан, ул. Байтурсынова, д. 15</p>
             </div>
           </div>
 

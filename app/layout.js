@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
               защищены.
             </p>
             <p className="mt-2 text-gray-400">
-              Контакты: info@greentech.ru | +7 (999) 123-45-67
+              Контакты: info@greentech.ru | +7 (777) 123-45-67
             </p>
           </div>
         </footer>

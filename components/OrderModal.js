@@ -10,22 +10,22 @@ export default function OrderModal({ service, isOpen, onClose }) {
         email: '',
         address: '',
     });
-    const [status, setStatus] = useState('idle'); // idle | loading | success | error
+    const [status, setStatus] = useState('idle');
+    const [validationError, setValidationError] = useState('');
 
-    // При каждом открытии окна сбрасываем всё в исходное состояние
+    // Сброс состояния при каждом открытии
     useEffect(() => {
         if (isOpen) {
             setFormData({ full_name: '', phone: '', email: '', address: '' });
             setStatus('idle');
+            setValidationError('');
         }
     }, [isOpen]);
 
-    // Автоматически закрываем через 2 секунды после успеха
+    // Автозакрытие через 2 секунды при успехе
     useEffect(() => {
         if (status === 'success') {
-            const timer = setTimeout(() => {
-                onClose();
-            }, 2000);
+            const timer = setTimeout(() => onClose(), 2000);
             return () => clearTimeout(timer);
         }
     }, [status, onClose]);
@@ -34,10 +34,35 @@ export default function OrderModal({ service, isOpen, onClose }) {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        setValidationError('');
+    };
+
+    // Валидация перед отправкой
+    const validate = () => {
+        const { full_name, phone } = formData;
+        // ФИО: только буквы, пробелы, дефис, апостроф 
+        const nameRegex = /^[a-zA-Zа-яёА-ЯЁ\s\-']+$/;
+        if (!nameRegex.test(full_name) || full_name.trim().length < 5 || full_name.trim().length > 80) {
+            return 'ФИО должно содержать только буквы и быть длиной от 5 до 80 символов.';
+        }
+        // Телефон: российский формат +7 или 8, затем 10 цифр, допустимы разделители
+        const phoneRegex = /^(\+7|8)\s?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/;
+        if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+            return 'Введите корректный номер телефона (например, +7 777 123-45-67).';
+        }
+        return null;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setValidationError('');
+
+        const error = validate();
+        if (error) {
+            setValidationError(error);
+            return;
+        }
+
         setStatus('loading');
         try {
             const fd = new FormData();
@@ -46,10 +71,9 @@ export default function OrderModal({ service, isOpen, onClose }) {
             fd.append('phone', formData.phone);
             fd.append('email', formData.email);
             fd.append('address', formData.address);
-
             await submitOrder(fd);
             setStatus('success');
-        } catch (error) {
+        } catch {
             setStatus('error');
         }
     };
@@ -100,7 +124,7 @@ export default function OrderModal({ service, isOpen, onClose }) {
                                 onChange={handleChange}
                                 required
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                placeholder="+7 (999) 123-45-67"
+                                placeholder="+7 777 123-45-67"
                             />
                         </div>
                         <div>
@@ -126,6 +150,9 @@ export default function OrderModal({ service, isOpen, onClose }) {
                                 placeholder="Город, улица, дом"
                             ></textarea>
                         </div>
+                        {validationError && (
+                            <p className="text-red-600 text-sm">{validationError}</p>
+                        )}
                         {status === 'error' && (
                             <p className="text-red-600 text-sm">Произошла ошибка. Попробуйте позже.</p>
                         )}
