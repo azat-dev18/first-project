@@ -14,15 +14,28 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run build
-      - name: Deploy via rsync
-        uses: easingthemes/ssh-deploy@v4
+      
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-          REMOTE_USER: ${{ secrets.SERVER_USER }}
-          TARGET: ${{ secrets.TARGET_DIR }}
-          EXCLUDE: ".git, node_modules, .next, out"
-          SCRIPT_AFTER: |
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "."
+          target: ${{ secrets.TARGET_DIR }}
+          rm: false
+          strip_components: 0
+          exclude: ".git,node_modules,.next,out"
+
+      - name: Restart application
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
             cd ${{ secrets.TARGET_DIR }}
             npm ci --omit=dev
             echo "DATABASE_URL=postgresql://greentech_user:secure_password_here@localhost:5432/greentech" > .env.local
